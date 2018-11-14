@@ -1,0 +1,33 @@
+- name: setup PHP Composer
+  shell: creates=composer.phar chdir=/vagrant/symfony/
+    curl -sS https://getcomposer.org/installer | php
+  sudo_user: vagrant
+  tags:
+    - composer
+
+- name: setup framework installer
+  shell: creates=symfony.phar chdir=/vagrant/symfony/
+    curl -LsS http://symfony.com/installer > symfony.phar
+  sudo_user: vagrant
+  tags:
+    - composer
+
+- name: make framework installer executable
+  file: path=/vagrant/symfony/symfony.phar mode='ugo+x'
+  tags:
+    - composer
+
+- name: symlink PHAR files
+  file: src=/vagrant/symfony/{{item}}.phar dest=/usr/local/bin/{{item}} state=link
+  with_items:
+    - composer
+    - symfony
+  tags:
+    - composer
+
+- name: create projet symfony
+  shell: chdir=/vagrant/symfony/
+    composer create-project symfony/skeleton devops
+  sudo_user: vagrant
+  tags:
+    - composer
